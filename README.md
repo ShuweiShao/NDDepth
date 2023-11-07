@@ -1,6 +1,6 @@
 <div align="center">
 
-<h1>NDDepth: Normal-Distance Assisted Monocular Depth Estimation</h1>
+<h1>NDDepth: Normal-Distance Assisted Monocular Depth Estimation and Completion</h1>
 
 <div>
     <a href='https://scholar.google.com.hk/citations?hl=zh-CN&user=ecZHSVQAAAAJ' target='_blank'>Shuwei Shao</a><sup>1</sup>&emsp;
