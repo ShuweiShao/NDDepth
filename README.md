@@ -15,13 +15,13 @@
 
 <div>
     <h4 align="center">
-        • <a href="http://arxiv.org/abs/2311.07166" target='_blank'>Extended Version</a> •
+        • <a href="http://arxiv.org/abs/2311.07166" target='_blank'>Extended version</a> •
     </h4>
 </div>
 
 <div>
     <h4 align="center">
-        • <a href="https://arxiv.org/abs/2309.10592" target='_blank'>Conference Version [ICCV 2023(oral)]</a> •
+        • <a href="https://arxiv.org/abs/2309.10592" target='_blank'>Conference version [ICCV 2023(oral)]</a> •
     </h4>
 </div>
 
