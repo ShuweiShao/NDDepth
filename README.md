@@ -15,7 +15,7 @@
 
 <div>
     <h4 align="center">
-        • <a href="https://arxiv.org/abs/2309.10592" target='_blank'>Extended Version</a> •
+        • <a href="http://arxiv.org/abs/2311.07166" target='_blank'>Extended Version</a> •
     </h4>
 </div>
 
