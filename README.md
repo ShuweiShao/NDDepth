@@ -96,8 +96,8 @@ If you want to derive these results by yourself, please refer to the test.py.
 ## Models
 | Model | Abs Rel | Sq Rel | RMSE | a1 | a2 | a3| Link|
 | ------------ | :---: | :---: | :---: |  :---: |  :---: |  :---: |  :---: |
-|NYUv2 | 0.087 | 0.041 | 0.311 | 0.936 | 0.991 | 0.998 | [[Baidu]](https://pan.baidu.com/s/1M9S3LVGnzoxLAYhcVobmOw?pwd=eo1r)|
-|KITTI_Eigen| 0.050 | 0.141 | 2.025 | 0.978 | 0.998 | 0.999 |[[Baidu]](https://pan.baidu.com/s/1einURP-oxGQQx3BTtVg9bg?pwd=rvvs)|
+|NYUv2 (estimation) | 0.087 | 0.041 | 0.311 | 0.936 | 0.991 | 0.998 | [[Baidu]](https://pan.baidu.com/s/1M9S3LVGnzoxLAYhcVobmOw?pwd=eo1r)|
+|KITTI_Eigen (estimation) | 0.050 | 0.141 | 2.025 | 0.978 | 0.998 | 0.999 |[[Baidu]](https://pan.baidu.com/s/1einURP-oxGQQx3BTtVg9bg?pwd=rvvs)|
 
 
 ## Citation
