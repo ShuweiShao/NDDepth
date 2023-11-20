@@ -1,0 +1,15 @@
+--model_name nddepth_nyu
+--encoder large07
+--dataset nyu
+--input_height 480
+--input_width 640
+--max_depth 10
+
+--data_path_eval dataset
+--gt_path_eval dataset
+--filenames_file_eval data_splits/SUNRGBD_val_splits.txt
+--min_depth_eval 1e-3
+--max_depth_eval 10
+--eigen_crop
+
+--checkpoint_path model_zoo/nyu.pth
