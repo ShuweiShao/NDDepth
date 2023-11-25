@@ -90,6 +90,12 @@ You can download the qualitative depth results of [NDDepth](https://arxiv.org/ab
 
 If you want to derive these results by yourself, please refer to the test.py.
 
+If you want to infer on a single image, run
+```
+python nddepth/inference_single_image.py --dataset kitti or nyu --image_path path to image --checkpoint_path path to pretrained checkpoint 
+```
+Then you can acquire the qualitative depth and normal results.
+
 
 ## Models
 | Model | Abs Rel | Sq Rel | RMSE | a1 | a2 | a3| Link|
