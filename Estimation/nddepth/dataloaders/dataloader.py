@@ -257,16 +257,16 @@ class DataLoadPreprocess(Dataset):
 
         return image_aug
 
-    def Cut_Flip(self, image, depth):
+    def Cut_Flip(self, image, depth, normal):
 
         p = random.random()
         if p < 0.5:
-            return image, depth
+            return image, depth, normal
         image_copy = copy.deepcopy(image)
         depth_copy = copy.deepcopy(depth)
+        normal_copy = copy.deepcopy(normal)
         h, w, c = image.shape
-
-        N = 2     
+        N = 2     # split numbers
         h_list = []
         h_interval_list = []   # hight interval
         for i in range(N-1):
@@ -280,8 +280,9 @@ class DataLoadPreprocess(Dataset):
         for i in range(N):
             image[h_list[i]:h_list[i+1], :, :] = image_copy[h_list_inv[i]-h_interval_list[i]:h_list_inv[i], :, :]
             depth[h_list[i]:h_list[i+1], :, :] = depth_copy[h_list_inv[i]-h_interval_list[i]:h_list_inv[i], :, :]
+            normal[h_list[i]:h_list[i+1], :, :] = normal_copy[h_list_inv[i]-h_interval_list[i]:h_list_inv[i], :, :]
 
-        return image, depth
+        return image, depth, normal
 
     def __len__(self):
         return len(self.filenames)
