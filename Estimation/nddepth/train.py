@@ -292,7 +292,8 @@ def main_worker(gpu, ngpus_per_node, args):
     num_total_steps = args.num_epochs * steps_per_epoch
     epoch = global_step // steps_per_epoch
     
-    group = dist.new_group([i for i in range(ngpus_per_node)])
+    if args.multiprocessing_distributed:
+        group = dist.new_group([i for i in range(ngpus_per_node)])
     while epoch < args.num_epochs:
         if args.distributed:
             dataloader.train_sampler.set_epoch(epoch)
