@@ -60,6 +60,7 @@ pip install -e .
 ## Datasets
 You can prepare the datasets KITTI and NYUv2 according to [here](https://github.com/cleinc/bts/tree/master/pytorch) and download the SUN RGB-D dataset from [here](https://rgbd.cs.princeton.edu/), and then modify the data path in the config files to your dataset locations.
 
+You can download the generated surface normal ground-truth on NYUV2 from [here](https://drive.google.com/file/d/1nITbaVeaEh8JikKV3LK_Vrc67XV9Jkeh/view?usp=drive_link) and KITTI from [here](https://drive.google.com/file/d/1__JhniUkOVaQHft2CXL5ZXqnmf-yUAOa/view?usp=drive_link).
 
 ## Training
 First download the pretrained encoder backbone from [here](https://github.com/microsoft/Swin-Transformer), and then modify the pretrain path in the config files.
