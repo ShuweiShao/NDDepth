@@ -104,6 +104,9 @@ Then you can acquire the qualitative depth and normal results.
 |NYUv2 | 0.087 | 0.041 | 0.311 | 0.936 | 0.991 | 0.998 | [[Google]](https://drive.google.com/file/d/1dpDgJZOuso2iBYSXy10K2gneK8c8pFuX/view?usp=drive_link) [[Baidu]](https://pan.baidu.com/s/1M9S3LVGnzoxLAYhcVobmOw?pwd=eo1r)|
 |KITTI_Eigen | 0.050 | 0.141 | 2.025 | 0.978 | 0.998 | 0.999 |[[Google]](https://drive.google.com/file/d/1j3q3JDHn0WKRM3hwHaYqoxHAWoPpIEOb/view?usp=drive_link) [[Baidu]](https://pan.baidu.com/s/1einURP-oxGQQx3BTtVg9bg?pwd=rvvs)|
 
+| Model | SILog| Abs Rel | Sq Rel | RMSE | a1 | a2 | a3| Link|
+| ------------ | :---: | :---: | :---: | :---: |  :---: |  :---: |  :---: |  :---: |
+|KITTI_Official (Swinv2-L)| 7.53 | 5.23 | 0.81 | 2.34 | 0.972 | 0.996 | 0.999 |[[Google]](https://drive.google.com/file/d/1YGwJcJXwza3thAtzU6oLpINdruiqT_1h/view?usp=drive_link)|
 
 ## Citation
 
