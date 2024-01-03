@@ -63,16 +63,21 @@ You can prepare the datasets KITTI and NYUv2 according to [here](https://github.
 You can download the generated surface normal ground-truth on NYUV2 from [here](https://drive.google.com/file/d/1nITbaVeaEh8JikKV3LK_Vrc67XV9Jkeh/view?usp=drive_link) and KITTI from [here](https://drive.google.com/file/d/1__JhniUkOVaQHft2CXL5ZXqnmf-yUAOa/view?usp=drive_link).
 
 ## Training
-First download the pretrained encoder backbone from [here](https://github.com/microsoft/Swin-Transformer), and then modify the pretrain path in the config files.
+First download the pretrained encoder backbone from [here](https://github.com/microsoft/Swin-Transformer), and then modify the pretrain path in the config files.  If you want to train the KITTI_Official model, first download the pretrained encoder backbone from [here](https://drive.google.com/file/d/1qjDnMwmEz0k0XWh7GP2aNPGiAjvOPF_5/view?usp=drive_link), which is provided by [MIM](https://github.com/SwinTransformer/MIM-Depth-Estimation).
 
 Training the NYUv2 model:
 ```
 python nddepth/train.py configs/arguments_train_nyu.txt
 ```
 
-Training the KITTI model:
+Training the KITTI_Eigen model:
 ```
 python nddepth/train.py configs/arguments_train_kittieigen.txt
+```
+
+Training the KITTI_Official model:
+```
+python nddepth_kittiofficial/train.py configs/arguments_train_kittiofficial.txt
 ```
 
 ## Evaluation
@@ -81,9 +86,14 @@ Evaluate the NYUv2 model:
 python nddepth/eval.py configs/arguments_eval_nyu.txt
 ```
 
-Evaluate the KITTI model:
+Evaluate the KITTI_Eigen model:
 ```
 python nddepth/eval.py configs/arguments_eval_kittieigen.txt
+```
+
+To generate KITTI Online evaluation data for the KITTI_Official model:
+```
+python nddepth_kittiofficial/test.py --data_path path to dataset --filenames_file ./data_splits/kitti_official_test.txt --max_depth 80 --checkpoint_path path to pretrained checkpoint  --dataset kitti --do_kb_crop
 ```
 
 ## Qualitative Depth and Point Cloud Results
