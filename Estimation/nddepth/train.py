@@ -361,14 +361,7 @@ def main_worker(gpu, ngpus_per_node, args):
             segment, planar_mask, dissimilarity_map = compute_seg(image, normal_est_norm, distance_est[:, 0])
             loss_grad_normal, loss_grad_distance = get_smooth_ND(normal_est_norm, distance_est, planar_mask)
 
-            if epoch < 5:
-                w_normal = 0
-                w_distance = 0
-            else:
-                w_normal = 0.01
-                w_distance = 0.01
-
-            loss = (loss_depth1 + loss_depth2) / weights_sum + loss_depth1_0 + loss_depth2_0 + loss_uncer1 + loss_uncer2 + loss_normal + loss_distance + w_normal * loss_grad_normal + w_distance * loss_grad_distance
+            loss = (loss_depth1 + loss_depth2) / weights_sum + loss_depth1_0 + loss_depth2_0 + loss_uncer1 + loss_uncer2 + loss_normal + loss_distance + 0.01 * loss_grad_normal + 0.01 * loss_grad_distance
 
             loss.backward()
             nn.utils.clip_grad_norm_(model.parameters(), max_norm=10, norm_type=2)
@@ -409,89 +402,6 @@ def main_worker(gpu, ngpus_per_node, args):
                     writer.add_scalar('grad_distance_loss', loss_grad_distance, global_step)
                     writer.add_scalar('learning_rate', current_lr, global_step)
                     writer.add_scalar('var average', var_sum.item()/var_cnt, global_step)
-
-                    depth_gt = torch.where(depth_gt < 1e-3, depth_gt * 0 + 1e-3, depth_gt)
-                    distance_gt = torch.where(distance_gt < 1e-3, distance_gt * 0 + 1e-3, distance_gt)
-                    normal_gt_norm = (normal_gt_norm + 1) / 2
-                    normal_est_norm = (normal_est_norm + 1) / 2 
-                    device = segment.device
-                    for i in range(num_log_images):
-                        if epoch < 5:
-                            _, _, h, w = image.shape 
-                            seg_map = segment[i, :, :, :].data.cpu().numpy().flatten()
-                            un_label, lab_inverse = np.unique(seg_map, return_inverse=True)
-                            image_flatten = inv_normalize(image[i, :, :, :]).permute(1, 2, 0).data.cpu().numpy().reshape((-1, 3))
-                            image_flatten = np.uint8(image_flatten * 255)
-                            img_flatten = image_flatten.copy()
-                            color_avg = [np.mean(img_flatten[seg_map == label], axis=0, dtype=np.int) for label in un_label]
-                            for lab_id, color in enumerate(color_avg):
-                                img_flatten[lab_inverse == lab_id] = color
-                            seg_vis = img_flatten.reshape(h, w, 3)
-                            seg_vis = torch.from_numpy(seg_vis).permute(2, 0, 1).to(device)
-                            
-                            if args.dataset == 'nyu':
-                                writer.add_image('depth_gt/image/{}'.format(i), colormap(torch.log10(depth_gt[i, :, :, :].data)), global_step)
-                                writer.add_image('depth_est1_0/image/{}'.format(i), colormap(torch.log10(depth1_list[i, :, :, :].data)), global_step)
-                                writer.add_image('depth_est2_0/image/{}'.format(i), colormap(torch.log10(depth2_list[i, :, :, :].data)), global_step)
-                            else:
-                                writer.add_image('depth_gt/image/{}'.format(i), colormap_magma(torch.log10(depth_gt[i, :, :, :].data)), global_step)
-                                writer.add_image('depth_est1_0/image/{}'.format(i), colormap_magma(torch.log10(depth1_list[i, :, :, :].data)), global_step)
-                                writer.add_image('depth_est2_0/image/{}'.format(i), colormap_magma(torch.log10(depth2_list[i, :, :, :].data)), global_step)        
-                           
-                            writer.add_image('uncer_est1_0/image/{}'.format(i), colormap(uncer1_list[i, :, :, :].data), global_step)
-                            writer.add_image('uncer_est2_0/image/{}'.format(i), colormap(uncer2_list[i, :, :, :].data), global_step)
-                            writer.add_image('image/image/{}'.format(i), inv_normalize(image[i, :, :, :]).data, global_step)
-                            writer.add_image('segment/image/{}'.format(i), seg_vis.data, global_step)
-                            writer.add_image('planar_mask/image/{}'.format(i), planar_mask[i, :, :, :].data, global_step)
-                            writer.add_image('dissimilarity_map/image/{}'.format(i), colormap_viridis(dissimilarity_map[i, :, :, :].data), global_step)
-                            writer.add_image('normal_gt/image/{}'.format(i), normal_gt_norm[i, :, :, :].data, global_step)
-                            writer.add_image('normal_est/image/{}'.format(i), normal_est_norm[i, :, :, :].data, global_step)
-                            writer.add_image('distance_gt/image/{}'.format(i), colormap(distance_gt[i, :, :, :].data), global_step)
-                            writer.add_image('distance_est/image/{}'.format(i), colormap(distance_est[i, :, :, :].data), global_step)
-                        else:
-                            _, _, h, w = image.shape 
-                            seg_map = segment[i, :, :, :].data.cpu().numpy().flatten()
-                            un_label, lab_inverse = np.unique(seg_map, return_inverse=True)
-                            image_flatten = inv_normalize(image[i, :, :, :]).permute(1, 2, 0).data.cpu().numpy().reshape((-1, 3))
-                            image_flatten = np.uint8(image_flatten * 255)
-                            img_flatten = image_flatten.copy()
-                            color_avg = [np.mean(img_flatten[seg_map == label], axis=0, dtype=np.int) for label in un_label]
-                            for lab_id, color in enumerate(color_avg):
-                                img_flatten[lab_inverse == lab_id] = color
-                            seg_vis = img_flatten.reshape(h, w, 3)
-                            seg_vis = torch.from_numpy(seg_vis).permute(2, 0, 1).to(device)
-
-                            if args.dataset == 'nyu':
-                                writer.add_image('depth_gt/image/{}'.format(i), colormap(torch.log10(depth_gt[i, :, :, :].data)), global_step)
-                                writer.add_image('depth_est1_0/image/{}'.format(i), colormap(torch.log10(depth1_list[0][i, :, :, :].data)), global_step)
-                                writer.add_image('depth_est1_1/image/{}'.format(i), colormap(torch.log10(depth1_list[1][i, :, :, :].data)), global_step)
-                                writer.add_image('depth_est1_2/image/{}'.format(i), colormap(torch.log10(depth1_list[2][i, :, :, :].data)), global_step)
-                                writer.add_image('depth_est1_3/image/{}'.format(i), colormap(torch.log10(depth1_list[3][i, :, :, :].data)), global_step)
-                                writer.add_image('depth_est2_0/image/{}'.format(i), colormap(torch.log10(depth2_list[0][i, :, :, :].data)), global_step)
-                                writer.add_image('depth_est2_1/image/{}'.format(i), colormap(torch.log10(depth2_list[1][i, :, :, :].data)), global_step)
-                                writer.add_image('depth_est2_2/image/{}'.format(i), colormap(torch.log10(depth2_list[2][i, :, :, :].data)), global_step)
-                                writer.add_image('depth_est2_3/image/{}'.format(i), colormap(torch.log10(depth2_list[3][i, :, :, :].data)), global_step)
-                            else:
-                                writer.add_image('depth_gt/image/{}'.format(i), colormap_magma(torch.log10(depth_gt[i, :, :, :].data)), global_step)
-                                writer.add_image('depth_est1_0/image/{}'.format(i), colormap_magma(torch.log10(depth1_list[0][i, :, :, :].data)), global_step)
-                                writer.add_image('depth_est1_1/image/{}'.format(i), colormap_magma(torch.log10(depth1_list[1][i, :, :, :].data)), global_step)
-                                writer.add_image('depth_est1_2/image/{}'.format(i), colormap_magma(torch.log10(depth1_list[2][i, :, :, :].data)), global_step)
-                                writer.add_image('depth_est1_3/image/{}'.format(i), colormap_magma(torch.log10(depth1_list[3][i, :, :, :].data)), global_step)
-                                writer.add_image('depth_est2_0/image/{}'.format(i), colormap_magma(torch.log10(depth2_list[0][i, :, :, :].data)), global_step)
-                                writer.add_image('depth_est2_1/image/{}'.format(i), colormap_magma(torch.log10(depth2_list[1][i, :, :, :].data)), global_step)
-                                writer.add_image('depth_est2_2/image/{}'.format(i), colormap_magma(torch.log10(depth2_list[2][i, :, :, :].data)), global_step)
-                                writer.add_image('depth_est2_3/image/{}'.format(i), colormap_magma(torch.log10(depth2_list[3][i, :, :, :].data)), global_step)   
-                                         
-                            writer.add_image('uncer_est1_0/image/{}'.format(i), colormap(uncer1_list[i, :, :, :].data), global_step)
-                            writer.add_image('uncer_est2_0/image/{}'.format(i), colormap(uncer2_list[i, :, :, :].data), global_step)
-                            writer.add_image('image/image/{}'.format(i), inv_normalize(image[i, :, :, :]).data, global_step)
-                            writer.add_image('segment/image/{}'.format(i), seg_vis.data, global_step)
-                            writer.add_image('planar_mask/image/{}'.format(i), planar_mask[i, :, :, :].data, global_step)
-                            writer.add_image('dissimilarity_map/image/{}'.format(i), colormap_viridis(dissimilarity_map[i, :, :, :].data), global_step)
-                            writer.add_image('normal_gt/image/{}'.format(i), normal_gt_norm[i, :, :, :].data, global_step)
-                            writer.add_image('normal_est/image/{}'.format(i), normal_est_norm[i, :, :, :].data, global_step)
-                            writer.add_image('distance_gt/image/{}'.format(i), colormap(distance_gt[i, :, :, :].data), global_step)
-                            writer.add_image('distance_est/image/{}'.format(i), colormap(distance_est[i, :, :, :].data), global_step)
 
                     writer.flush()
 
