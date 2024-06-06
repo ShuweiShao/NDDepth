@@ -136,8 +136,8 @@ If you find our work useful in your research please consider citing our paper:
 @article{shao2023nddepth,
   title={NDDepth: Normal-Distance Assisted Monocular Depth Estimation and Completion},
   author={Shao, Shuwei and Pei, Zhongcai and Chen, Weihai and Chen, Peter CY and Li, Zhengguo},
-  journal={arXiv preprint arXiv:2311.07166},
-  year={2023}
+  journal={IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  year={2024}
 }
 ```
 
