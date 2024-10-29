@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-dev \
     python3-pip \
+    freeglut3-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -15,4 +16,4 @@ RUN git clone https://github.com/tauzn-clock/NDDepth
 WORKDIR /NDDepth
 
 RUN pip3 install matplotlib tqdm tensorboardX timm mmcv open3d
-RUN apt-get install freeglut3-dev -y
+
