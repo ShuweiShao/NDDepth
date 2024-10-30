@@ -155,15 +155,15 @@ class NewCRFDepth(nn.Module):
 
     def forward(self, imgs, inv_K, epoch):
         
-        feats = self.backbone(imgs)
+        feats = self.backbone(imgs) # DX: Get Features from SWIM backbone
 
         if self.with_neck:
             feats = self.neck(feats)
         
         # depth
-        ppm_out = self.decoder(feats)
+        ppm_out = self.decoder(feats) # DX: Two parallel PSP decoder, tries to learn depth
 
-        e3 = self.crf3(feats[3], ppm_out)
+        e3 = self.crf3(feats[3], ppm_out) # DX: This is the GRU tuning process
         e3 = nn.PixelShuffle(2)(e3)
         e2 = self.crf2(feats[2], e3)
         e2 = nn.PixelShuffle(2)(e2)
@@ -178,13 +178,13 @@ class NewCRFDepth(nn.Module):
             d1 = self.upsample_mask(d1, mask)
             u1 = self.upsample_mask(u1, mask)
         else:
-            d1 = self.disp_head1(e0, 1)
+            d1 = self.disp_head1(e0, 1) # DX: More simplistic structure, calculate depth using one layeer
             u1 = self.uncer_head1(e0, 1)
 
         # normal and distance
-        ppm_out2 = self.decoder2(feats)
+        ppm_out2 = self.decoder2(feats) # DX: Two parallel PSP decoder, tries to learn normal and distance
 
-        e7 = self.crf7(feats[3], ppm_out2)
+        e7 = self.crf7(feats[3], ppm_out2) # DX: This is the GRU tuning process
         e7 = nn.PixelShuffle(2)(e7)
         e6 = self.crf6(feats[2], e7)
         e6 = nn.PixelShuffle(2)(e6)
@@ -201,18 +201,22 @@ class NewCRFDepth(nn.Module):
             dist1 = self.upsample_mask(dist1, mask2)
             u2 = self.upsample_mask(u2, mask2)
         else:
-            n1 = self.normal_head1(e4, 1)
+            n1 = self.normal_head1(e4, 1) # DX: Find normal, then distance
             dist1 = self.distance_head1(e4, 1)
             u2 = self.uncer_head2(e4, 1)
 
         b, c, h, w =  n1.shape 
         device = n1.device  
-        dn_to_depth = DN_to_depth(b, h, w).to(device)
+        dn_to_depth = DN_to_depth(b, h, w).to(device) # DX: Layer to converts normal + distance to depth
 
         distance = dist1 * self.max_depth 
         n1_norm = F.normalize(n1, dim=1, p=2)
+        #print(n1_norm.shape)
+        #print(distance.shape)
         depth2 = dn_to_depth(n1_norm, distance, inv_K).clamp(0, self.max_depth)
         
+        # DX: For some reason, image down scaled by 4 in the model
+
         if epoch < 5:
             depth1 = upsample(d1, scale_factor=4) * self.max_depth
             u1 = upsample(u1, scale_factor=4)
