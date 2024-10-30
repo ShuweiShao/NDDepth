@@ -211,8 +211,6 @@ class NewCRFDepth(nn.Module):
 
         distance = dist1 * self.max_depth 
         n1_norm = F.normalize(n1, dim=1, p=2)
-        #print(n1_norm.shape)
-        #print(distance.shape)
         depth2 = dn_to_depth(n1_norm, distance, inv_K).clamp(0, self.max_depth)
         
         # DX: For some reason, image down scaled by 4 in the model
