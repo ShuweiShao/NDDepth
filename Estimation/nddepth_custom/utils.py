@@ -463,7 +463,9 @@ def compute_seg(rgb, aligned_norm, D):
         device = rgb.device
 
         # compute cost
-        pdist = nn.PairwiseDistance(p=2)
+        #pdist = nn.PairwiseDistance(p=2, dim = 1)
+        def pdist(x,y):
+            return torch.linalg.norm(x-y, ord=2, dim=1)
 
         D_down = abs(D[:, 1:] - D[:, :-1])
         D_right = abs(D[:, :, 1:] - D[:, :, :-1])

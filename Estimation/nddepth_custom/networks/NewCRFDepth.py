@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torchvision.models as models
 
 from .swin_transformer import SwinTransformer
 from .newcrf_layers import NewCRF
@@ -67,6 +68,7 @@ class NewCRFDepth(nn.Module):
         )
 
         self.backbone = SwinTransformer(**backbone_cfg)
+        #self.backbone = models.swin_v2_t(models.Swin_V2_T_Weights.IMAGENET1K_V1)
         v_dim = decoder_cfg['num_classes']*4
         win = 7
         crf_dims = [128, 256, 512, 1024]
@@ -122,6 +124,7 @@ class NewCRFDepth(nn.Module):
             pretrained (str, optional): Path to pre-trained weights.
                 Defaults to None.
         """
+        #return
         print(f'== Load encoder backbone from: {pretrained}')
         self.backbone.init_weights(pretrained=pretrained)
         if self.mode == 'single':

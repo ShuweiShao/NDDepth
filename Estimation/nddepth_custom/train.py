@@ -474,9 +474,9 @@ def main():
         print('train.py is only for training.')
         return -1
     
-    exp_name = '%s'%(datetime.now().strftime('%m%d'))  
+    exp_name = '%s'%(datetime.now().strftime('%m%d_%H%M'))  
     args.log_directory = os.path.join(args.log_directory,exp_name)  
-    command = 'mkdir ' + os.path.join(args.log_directory, args.model_name)
+    command = 'mkdir -p ' + os.path.join(args.log_directory, args.model_name)
     os.system(command)
 
     args_out_path = os.path.join(args.log_directory, args.model_name)
@@ -490,9 +490,9 @@ def main():
         dataloaders_savepath = os.path.join(aux_out_path, 'dataloaders')
         command = 'cp nddepth/train.py ' + aux_out_path
         os.system(command)
-        command = 'mkdir -p ' + networks_savepath + ' && cp nddepth/networks/*.py ' + networks_savepath
+        command = 'mkdir -p ' + networks_savepath + ' && cp nddepth_custom/networks/*.py ' + networks_savepath
         os.system(command)
-        command = 'mkdir -p ' + dataloaders_savepath + ' && cp nddepth/dataloaders/*.py ' + dataloaders_savepath
+        command = 'mkdir -p ' + dataloaders_savepath + ' && cp nddepth_custom/dataloaders/*.py ' + dataloaders_savepath
         os.system(command)
 
     torch.cuda.empty_cache()
