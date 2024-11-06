@@ -1,6 +1,5 @@
 FROM nvidia/cuda:12.2.0-devel-ubuntu22.04
 
-# DUST3R
 RUN apt-get update && apt-get install -y \
     git \
     wget \
@@ -11,6 +10,10 @@ RUN apt-get update && apt-get install -y \
     freeglut3-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+COPY ./get_custom_scikit_image.sh /get_custom_scikit_image.sh
+RUN chmod +x /get_custom_scikit_image.sh
+RUN /get_custom_scikit_image.sh
 
 RUN git clone https://github.com/tauzn-clock/NDDepth 
 WORKDIR /NDDepth
