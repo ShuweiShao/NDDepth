@@ -9,7 +9,7 @@ import os, sys
 import numpy as np
 import math
 import torch
-from skimage.segmentation import felzenszwalb as felz_seg
+from skimage.segmentation import all_felzenszwalb as felz_seg
 
 def convert_arg_line_to_args(arg_line):
     for arg in arg_line.split():
