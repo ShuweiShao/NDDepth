@@ -6,7 +6,7 @@
 --data_path /scratchdata/nyu_depth_v2/sync
 --gt_path /scratchdata/nyu_depth_v2/sync
 --filenames_file data_splits/nyudepthv2_train_files_with_gt_dense.txt
---batch_size 1
+--batch_size 16
 --num_epochs 50
 --learning_rate 2e-5
 --weight_decay 1e-2
@@ -24,7 +24,7 @@
 --log_freq 100
 --do_online_eval
 --eval_freq 1000
---data_path_eval  /scratchdata/nyu_depth_v2/official_splits/train/
+--data_path_eval  /scratchdata/nyu_depth_v2/official_splits/test/
 --gt_path_eval /scratchdata/nyu_depth_v2/official_splits/test/
 --filenames_file_eval data_splits/nyudepthv2_test_files_with_gt.txt
 --min_depth_eval 1e-3
