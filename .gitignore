@@ -1,2 +1,4 @@
 *.pyc
 Estimation/models/*
+/.vscode
+*.png
