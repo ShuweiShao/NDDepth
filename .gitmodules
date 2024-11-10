@@ -1,0 +1,3 @@
+[submodule "DepthAnything"]
+	path = DepthAnything
+	url = https://github.com/tauzn-clock/Depth-Anything-V2
