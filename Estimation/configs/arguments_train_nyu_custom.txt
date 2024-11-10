@@ -33,4 +33,5 @@
 
 --do_depth_anything
 --depth_anything_model_path /scratchdata/depth_anything_v2_metric_hypersim_vitl.pth
---depth_anything_model_name vitl
+--depth_anything_encoder vitl
+--depth_anything_max_depth 20.0
