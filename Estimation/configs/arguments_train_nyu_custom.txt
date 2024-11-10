@@ -30,3 +30,7 @@
 --min_depth_eval 1e-3
 --max_depth_eval 10
 --eigen_crop
+
+--do_depth_anything
+--depth_anything_model_path /scratchdata/depth_anything_v2_metric_hypersim_vitl.pth
+--depth_anything_model_name vitl

@@ -19,6 +19,7 @@ from utils import post_process_depth, flip_lr, silog_loss, DN_to_distance, DN_to
 from networks.NewCRFDepth import NewCRFDepth
 from datetime import datetime
 
+from networks.depth_anything_interface import get_model
 
 parser = argparse.ArgumentParser(description='NDDepth PyTorch implementation.', fromfile_prefix_chars='@')
 parser.convert_arg_line_to_args = convert_arg_line_to_args
@@ -82,6 +83,12 @@ parser.add_argument('--garg_crop',                             help='if set, cro
 parser.add_argument('--eval_freq',                 type=int,   help='Online evaluation frequency in global steps', default=500)
 parser.add_argument('--eval_summary_directory',    type=str,   help='output directory for eval summary,'
                                                                     'if empty outputs to checkpoint folder', default='')
+
+# Depth Anything
+parser.add_argument('--do_depth_anything',                     help='if set, will use depth anything model for depth estimation', action='store_true')
+parser.add_argument('--depth_anything_model_path',   type=str,   help='path to the depth anything model', default='')
+parser.add_argument('--depth_anything_encoder',      type=str,   help='type of encoder, vits, vitb, vitl', default='vitl')
+parser.add_argument('--depth_anything_max_depth',    type=float, help='maximum depth in estimation', default=10)
 
 if sys.argv.__len__() == 2:
     arg_filename_with_prefix = '@' + sys.argv[1]
@@ -190,7 +197,11 @@ def main_worker(gpu, ngpus_per_node, args):
         dist.init_process_group(backend=args.dist_backend, init_method=args.dist_url, world_size=args.world_size, rank=args.rank)
 
     # model
-    model = NewCRFDepth(version=args.encoder, inv_depth=False, max_depth=args.max_depth, pretrained=args.pretrain, mode='triple')
+    
+    depth_anything_model = get_model(args.gpu, args.depth_anything_model_path, args.depth_anything_encoder, args.depth_anything_max_depth)
+    
+    model = NewCRFDepth(version=args.encoder, inv_depth=False, max_depth=args.max_depth, pretrained=args.pretrain, mode='triple', 
+                        depth_anything_model=depth_anything_model)
     model.train()
 
     num_params = sum([np.prod(p.size()) for p in model.parameters()])

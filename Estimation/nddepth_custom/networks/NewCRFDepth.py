@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torchvision.models as models
 
 from .swin_transformer import SwinTransformer
 from .newcrf_layers import NewCRF
@@ -15,7 +14,8 @@ class NewCRFDepth(nn.Module):
     Depth network based on neural window FC-CRFs architecture.
     """
     def __init__(self, version=None, inv_depth=False, pretrained=None, 
-                    frozen_stages=-1, min_depth=0.1, max_depth=100.0, mode='single', **kwargs):
+                    frozen_stages=-1, min_depth=0.1, max_depth=100.0, mode='single', 
+                    depth_anything_model = None, **kwargs):
         super().__init__()
 
         self.inv_depth = inv_depth
@@ -114,9 +114,11 @@ class NewCRFDepth(nn.Module):
 
         self.min_depth = min_depth
         self.max_depth = max_depth
+        
+        if not depth_anything_model is None: self.depth_anything_model = depth_anything_model.to(next(self.parameters()).device) # Hacky way to get device
 
         self.init_weights(pretrained=pretrained)
-
+        
     def init_weights(self, pretrained=None):
         """Initialize the weights in backbone and heads.
 
@@ -164,7 +166,8 @@ class NewCRFDepth(nn.Module):
             feats = self.neck(feats)
         
         # depth
-        ppm_out = self.decoder(feats) # DX: Two parallel PSP decoder, tries to learn depth
+        #ppm_out = self.decoder(feats) # DX: Two parallel PSP decoder, tries to learn depth
+        ppm_out = self.depth_anything_model(imgs)
 
         e3 = self.crf3(feats[3], ppm_out) # DX: This is the GRU tuning process
         e3 = nn.PixelShuffle(2)(e3)
