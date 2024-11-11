@@ -166,10 +166,10 @@ class NewCRFDepth(nn.Module):
             feats = self.neck(feats)
         
         # depth
-        #ppm_out = self.decoder(feats) # DX: Two parallel PSP decoder, tries to learn depth
+        ppm_out = self.decoder(feats) # DX: Two parallel PSP decoder, tries to learn depth
         depth_anything_img = F.interpolate(imgs, size=(518, 518), mode='bilinear', align_corners=False)
-        d1 = self.depth_anything_model(depth_anything_img)
-        u1 = None
+        depth_anything_depth = self.depth_anything_model(depth_anything_img)
+        depth_anything_depth = F.interpolate(depth_anything_depth.unsqueeze(1), size=(120, 160), mode='bilinear', align_corners=False)
 
         e3 = self.crf3(feats[3], ppm_out) # DX: This is the GRU tuning process
         e3 = nn.PixelShuffle(2)(e3)
