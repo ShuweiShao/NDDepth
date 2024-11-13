@@ -6,7 +6,7 @@
 --data_path /scratchdata/nyu_depth_v2/sync
 --gt_path /scratchdata/nyu_depth_v2/sync
 --filenames_file data_splits/nyudepthv2_train_files_with_gt_dense.txt
---batch_size 16
+--batch_size 8
 --num_epochs 50
 --learning_rate 2e-5
 --weight_decay 1e-2
