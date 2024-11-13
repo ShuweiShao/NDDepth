@@ -341,7 +341,7 @@ def main_worker(gpu, ngpus_per_node, args):
                 uncer2_gt = torch.exp(-5 * torch.abs(depth_gt - depth2_list.detach()) / (depth_gt + depth2_list.detach() + 1e-7))
                 
                 loss_depth1 = silog_criterion.forward(depth1_list, depth_gt, mask.to(torch.bool))
-                loss_uncer1 = torch.abs(uncer1_list[mask.to(torch.bool)]-uncer1_gt[mask.to(torch.bool)]).mean()
+                #loss_uncer1 = torch.abs(uncer1_list[mask.to(torch.bool)]-uncer1_gt[mask.to(torch.bool)]).mean()
                 loss_depth2 = silog_criterion.forward(depth2_list, depth_gt, mask.to(torch.bool))
                 loss_uncer2 = torch.abs(uncer2_list[mask.to(torch.bool)]-uncer2_gt[mask.to(torch.bool)]).mean()
 
@@ -353,7 +353,7 @@ def main_worker(gpu, ngpus_per_node, args):
                 uncer1_gt = torch.exp(-5 * torch.abs(depth_gt - depth1_list[0].detach()) / (depth_gt + depth1_list[0].detach() + 1e-7))
                 uncer2_gt = torch.exp(-5 * torch.abs(depth_gt - depth2_list[0].detach()) / (depth_gt + depth2_list[0].detach() + 1e-7))
                 
-                loss_uncer1 = torch.abs(uncer1_list[mask.to(torch.bool)]-uncer1_gt[mask.to(torch.bool)]).mean()
+                #loss_uncer1 = torch.abs(uncer1_list[mask.to(torch.bool)]-uncer1_gt[mask.to(torch.bool)]).mean()
                 loss_uncer2 = torch.abs(uncer2_list[mask.to(torch.bool)]-uncer2_gt[mask.to(torch.bool)]).mean()
                 
                 loss_depth1_0 = silog_criterion.forward(depth1_list[0], depth_gt, mask.to(torch.bool))
@@ -372,7 +372,8 @@ def main_worker(gpu, ngpus_per_node, args):
             segment, planar_mask, dissimilarity_map = compute_seg(image, normal_est_norm, distance_est[:, 0])
             loss_grad_normal, loss_grad_distance = get_smooth_ND(normal_est_norm, distance_est, planar_mask)
 
-            loss = (loss_depth1 + loss_depth2) / weights_sum + loss_depth1_0 + loss_depth2_0 + loss_uncer1 + loss_uncer2 + loss_normal + loss_distance + 0.01 * loss_grad_normal + 0.01 * loss_grad_distance
+            #loss = (loss_depth1 + loss_depth2) / weights_sum + loss_depth1_0 + loss_depth2_0 + loss_uncer1 + loss_uncer2 + loss_normal + loss_distance + 0.01 * loss_grad_normal + 0.01 * loss_grad_distance
+            loss = (loss_depth1 + loss_depth2) / weights_sum + loss_depth1_0 + loss_depth2_0 + loss_uncer2 + loss_normal + loss_distance + 0.01 * loss_grad_normal + 0.01 * loss_grad_distance
 
             loss.backward()
             nn.utils.clip_grad_norm_(model.parameters(), max_norm=10, norm_type=2)
@@ -406,7 +407,7 @@ def main_worker(gpu, ngpus_per_node, args):
                 if not args.multiprocessing_distributed or (args.multiprocessing_distributed
                                                             and args.rank % ngpus_per_node == 0):
                     writer.add_scalar('silog_loss', (loss_depth1 + loss_depth2) / weights_sum + (loss_depth1_0 + loss_depth2_0), global_step)
-                    writer.add_scalar('uncer_loss', (loss_uncer1 + loss_uncer2), global_step)
+                    #writer.add_scalar('uncer_loss', (loss_uncer1 + loss_uncer2), global_step)
                     writer.add_scalar('normal_loss', loss_normal, global_step)
                     writer.add_scalar('grad_normal_loss', loss_grad_normal, global_step)
                     writer.add_scalar('distance_loss', loss_distance, global_step)

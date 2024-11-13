@@ -73,7 +73,7 @@ class NewCRFDepth(nn.Module):
         win = 7
         crf_dims = [128, 256, 512, 1024]
         v_dims = [64, 128, 256, embed_dim]
-        
+
         # depth
         self.crf3 = NewCRF(input_dim=in_channels[3], embed_dim=crf_dims[3], window_size=win, v_dim=v_dims[3], num_heads=32)
         self.crf2 = NewCRF(input_dim=in_channels[2], embed_dim=crf_dims[2], window_size=win, v_dim=v_dims[2], num_heads=16)
@@ -81,8 +81,8 @@ class NewCRFDepth(nn.Module):
         self.crf0 = NewCRF(input_dim=in_channels[0], embed_dim=crf_dims[0], window_size=win, v_dim=v_dims[0], num_heads=4)
 
         self.decoder = PSP(**decoder_cfg)
-        self.disp_head1 = DispHead(input_dim=crf_dims[0])
-        self.uncer_head1 = UncerHead1(input_dim=crf_dims[0])
+        #self.disp_head1 = DispHead(input_dim=crf_dims[0])
+        #self.uncer_head1 = UncerHead1(input_dim=crf_dims[0])
 
         self.up_mode = 'bilinear'
         if self.up_mode == 'mask':
@@ -178,7 +178,7 @@ class NewCRFDepth(nn.Module):
         e1 = self.crf1(feats[1], e2)
         e1 = nn.PixelShuffle(2)(e1)
         e0 = self.crf0(feats[0], e1)
-
+        """
         if self.up_mode == 'mask':
             mask = self.mask_head(e0)
             d1 = self.disp_head1(e0, 1)
@@ -188,7 +188,7 @@ class NewCRFDepth(nn.Module):
         else:
             d1 = self.disp_head1(e0, 1) # DX: More simplistic structure, calculate depth using one layeer
             u1 = self.uncer_head1(e0, 1)
-
+        """
         # normal and distance
         ppm_out2 = self.decoder2(feats) # DX: Two parallel PSP decoder, tries to learn normal and distance
 
@@ -224,10 +224,11 @@ class NewCRFDepth(nn.Module):
         # DX: For some reason, image down scaled by 4 in the model
 
         d1 = depth_anything_depth /depth_anything_depth.max()
+        u1 = None
 
         if epoch < 5:
             depth1 = upsample(d1, scale_factor=4) * self.max_depth
-            u1 = upsample(u1, scale_factor=4)
+            #u1 = upsample(u1, scale_factor=4)
             depth2 = upsample(depth2, scale_factor=4)
             u2 = upsample(u2, scale_factor=4)
             n1_norm = upsample(n1_norm, scale_factor=4)
@@ -244,7 +245,7 @@ class NewCRFDepth(nn.Module):
 
             for i in range(len(depth1_list)):
                 depth1_list[i] = upsample(depth1_list[i], scale_factor=4) * self.max_depth
-            u1 = upsample(u1, scale_factor=4)
+            #u1 = upsample(u1, scale_factor=4)
             for i in range(len(depth2_list)):
                 depth2_list[i] = upsample(depth2_list[i], scale_factor=4) * self.max_depth 
             u2 = upsample(u2, scale_factor=4)
