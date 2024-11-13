@@ -223,6 +223,8 @@ class NewCRFDepth(nn.Module):
         
         # DX: For some reason, image down scaled by 4 in the model
 
+        d1 = depth_anything_depth /depth_anything_depth.max()
+
         if epoch < 5:
             depth1 = upsample(d1, scale_factor=4) * self.max_depth
             u1 = upsample(u1, scale_factor=4)
