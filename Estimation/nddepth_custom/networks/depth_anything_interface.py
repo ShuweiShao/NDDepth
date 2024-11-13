@@ -19,6 +19,6 @@ def get_model(DEVICE, MODEL_PATH, encoder='vitl', max_depth=20.0):
 
     model = DepthAnythingV2(**{**model_configs[encoder], 'max_depth': max_depth})
 
-    model.load_state_dict(torch.load(MODEL_PATH))
+    model.load_state_dict(torch.load(MODEL_PATH,weights_only=False))
     model = model.to(DEVICE).eval()
     return model
