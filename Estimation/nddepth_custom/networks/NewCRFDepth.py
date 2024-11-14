@@ -69,7 +69,7 @@ class NewCRFDepth(nn.Module):
 
         self.backbone = SwinTransformer(**backbone_cfg)
         #self.backbone = models.swin_v2_t(models.Swin_V2_T_Weights.IMAGENET1K_V1)
-        v_dim = decoder_cfg['num_classes']
+        v_dim = decoder_cfg['num_classes']*4
         win = 7
         crf_dims = [128, 256, 512, 1024]
         v_dims = [64, 128, 256, embed_dim]
@@ -115,6 +115,8 @@ class NewCRFDepth(nn.Module):
         self.min_depth = min_depth
         self.max_depth = max_depth
         
+        if not depth_anything_model is None: self.depth_anything_model = depth_anything_model.to(next(self.parameters()).device) # Hacky way to get device
+
         self.init_weights(pretrained=pretrained)
         
     def init_weights(self, pretrained=None):
@@ -154,7 +156,7 @@ class NewCRFDepth(nn.Module):
 
         up_disp = torch.sum(mask * up_disp, dim=2)
         up_disp = up_disp.permute(0, 1, 4, 2, 5, 3)
-        return up_disp.reshape(N, 1, H, W)
+        return up_disp.reshape(N, 1, 4*H, 4*W)
 
     def forward(self, imgs, inv_K, epoch):
         
@@ -165,6 +167,9 @@ class NewCRFDepth(nn.Module):
         
         # depth
         ppm_out = self.decoder(feats) # DX: Two parallel PSP decoder, tries to learn depth
+        depth_anything_img = F.interpolate(imgs, size=(518, 518), mode='bilinear', align_corners=False)
+        depth_anything_depth = self.depth_anything_model(depth_anything_img)
+        depth_anything_depth = F.interpolate(depth_anything_depth.unsqueeze(1), size=(120, 160), mode='bilinear', align_corners=False)
 
         e3 = self.crf3(feats[3], ppm_out) # DX: This is the GRU tuning process
         e3 = nn.PixelShuffle(2)(e3)
@@ -218,13 +223,16 @@ class NewCRFDepth(nn.Module):
         
         # DX: For some reason, image down scaled by 4 in the model
 
+        d1 = depth_anything_depth /depth_anything_depth.max()
+        #u1 = None
+
         if epoch < 5:
-            depth1 = upsample(d1, scale_factor=1) * self.max_depth
-            u1 = upsample(u1, scale_factor=1)
-            depth2 = upsample(depth2, scale_factor=1)
-            u2 = upsample(u2, scale_factor=1)
-            n1_norm = upsample(n1_norm, scale_factor=1)
-            distance = upsample(distance, scale_factor=1)
+            depth1 = upsample(d1, scale_factor=4) * self.max_depth
+            u1 = upsample(u1, scale_factor=4)
+            depth2 = upsample(depth2, scale_factor=4)
+            u2 = upsample(u2, scale_factor=4)
+            n1_norm = upsample(n1_norm, scale_factor=4)
+            distance = upsample(distance, scale_factor=4)
 
             return depth1, u1, depth2, u2, n1_norm, distance
         
@@ -236,13 +244,13 @@ class NewCRFDepth(nn.Module):
             depth1_list, depth2_list  = self.update(depth1, u1, depth2, u2, context, gru_hidden)
 
             for i in range(len(depth1_list)):
-                depth1_list[i] = upsample(depth1_list[i], scale_factor=1) * self.max_depth
-            u1 = upsample(u1, scale_factor=1)
+                depth1_list[i] = upsample(depth1_list[i], scale_factor=4) * self.max_depth
+            u1 = upsample(u1, scale_factor=4)
             for i in range(len(depth2_list)):
-                depth2_list[i] = upsample(depth2_list[i], scale_factor=1) * self.max_depth 
-            u2 = upsample(u2, scale_factor=1)
-            n1_norm = upsample(n1_norm, scale_factor=1)
-            distance = upsample(distance, scale_factor=1)
+                depth2_list[i] = upsample(depth2_list[i], scale_factor=4) * self.max_depth 
+            u2 = upsample(u2, scale_factor=4)
+            n1_norm = upsample(n1_norm, scale_factor=4)
+            distance = upsample(distance, scale_factor=4)
 
             return depth1_list, u1, depth2_list, u2, n1_norm, distance                                                     
                     
@@ -422,10 +430,12 @@ class DispUnpack(nn.Module):
         self.conv2 = nn.Conv2d(hidden_dim, 16, 3, padding=1)
         self.relu = nn.ReLU(inplace=True)
         self.sigmoid = nn.Sigmoid()
+        self.pixel_shuffle = nn.PixelShuffle(4)
 
     def forward(self, x, output_size):
         x = self.relu(self.conv1(x))
         x = self.sigmoid(self.conv2(x)) # [b, 16, h/4, w/4]
+        x = self.pixel_shuffle(x)
 
         return x
 

@@ -196,8 +196,12 @@ def main_worker(gpu, ngpus_per_node, args):
             args.rank = args.rank * ngpus_per_node + gpu
         dist.init_process_group(backend=args.dist_backend, init_method=args.dist_url, world_size=args.world_size, rank=args.rank)
 
-    # model    
-    model = NewCRFDepth(version=args.encoder, inv_depth=False, max_depth=args.max_depth, pretrained=args.pretrain, mode='triple')
+    # model
+    
+    depth_anything_model = get_model(args.gpu, args.depth_anything_model_path, args.depth_anything_encoder, args.depth_anything_max_depth)
+    
+    model = NewCRFDepth(version=args.encoder, inv_depth=False, max_depth=args.max_depth, pretrained=args.pretrain, mode='triple', 
+                        depth_anything_model=depth_anything_model)
     model.train()
 
     num_params = sum([np.prod(p.size()) for p in model.parameters()])
